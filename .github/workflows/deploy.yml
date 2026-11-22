@@ -1,3 +1,5 @@
+# Проверки и сборка образа в GHCR. Старый VPS удалён 21.11.2026.
+# Запуск приложения будет подключён отдельно через Coolify.
 name: deploy
 
 on:
@@ -54,20 +56,3 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-  deploy:
-    needs: image
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: Deploy to VPS
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/ci_key
-          chmod 600 ~/.ssh/ci_key
-          ssh -i ~/.ssh/ci_key -o StrictHostKeyChecking=yes "deploy@$VPS_HOST" "sha-${GITHUB_SHA::7}"

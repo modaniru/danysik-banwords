@@ -1,3 +1,3 @@
-module github.com/modaniru/danilka-say-patch
+module github.com/modaniru/danysik-banwords
 
 go 1.27.1

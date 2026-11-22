@@ -1,4 +1,9 @@
-# banwords
+# danysik-banwords
+
+> Старый VPS удалён 21.11.2026. Локальный CI готовит только проверки и образ;
+> запуск будет подключён через Coolify. Старый workflow временно выключен
+> на GitHub до публикации обновлённого файла и повторного включения.
+
 
 Планируемые изменения сервиса — в [BACKLOG.md](BACKLOG.md), выполненные —
 в [COMPLETED.md](COMPLETED.md).
@@ -121,8 +126,9 @@ Go-модулей, vendor и runtime Node.js нет. Docker собирает с�
 хэш всех полей и точного HTTP-тела, отсутствие доступа через сессию/суперадмина,
 отмена и объединение запросов JWKS, ротация/таймауты, лимиты и graceful shutdown.
 
-Репозиторий — `modaniru/danilka-say-patch`; push в master запускает проверки,
-сборку `ghcr.io/modaniru/banwords:sha-*` и deploy через отдельный SSH CI-ключ.
+Репозиторий — `modaniru/danysik-banwords`; локальный workflow выполняет проверки
+и сборку `ghcr.io/modaniru/banwords:sha-*`. После его публикации включить workflow
+в GitHub обратно. Старый SSH deploy удалён; запуск будет через Coolify.
 Для API 2.0 auth сначала должен начать выдавать JWT-маркер service-токена;
 после этого выкатывается backend. Сами пользовательские service-токены
 перевыпускать не требуется.

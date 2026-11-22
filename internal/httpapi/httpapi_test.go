@@ -24,8 +24,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/modaniru/danilka-say-patch/internal/auth"
-	"github.com/modaniru/danilka-say-patch/internal/catalog"
+	"github.com/modaniru/danysik-banwords/internal/auth"
+	"github.com/modaniru/danysik-banwords/internal/catalog"
 )
 
 type verifierFunc func(context.Context, string) (auth.Claims, error)
@@ -417,7 +417,7 @@ func TestSignedJWTThroughHTTPAndJWKS(t *testing.T) {
 	if got := request(h, "GET", CatalogPath, token).Code; got != 200 {
 		t.Fatalf("valid JWT got %d", got)
 	}
-	for _, bad := range []string{issue("tts", []string{"banwords:dictionaries:read"}, 1120), issue("banwords", []string{"banwords"}, 1120), issue("banwords", []string{"banwords:dictionaries:read"}, 999)} {
+	for _, bad := range []string{issue("other-service", []string{"banwords:dictionaries:read"}, 1120), issue("banwords", []string{"banwords"}, 1120), issue("banwords", []string{"banwords:dictionaries:read"}, 999)} {
 		if got := request(h, "GET", CatalogPath, bad).Code; got != 404 {
 			t.Fatalf("invalid claims got %d", got)
 		}

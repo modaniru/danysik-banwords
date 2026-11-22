@@ -1,0 +1,26 @@
+{
+  "service": "banwords",
+  "image": "ghcr.io/modaniru/banwords",
+  "port": 8080,
+  "healthcheck": "image",
+  "required_image_labels": {"io.danysik.deployment-contract": "coolify-v1"},
+  "depends_on": ["auth"],
+  "environment": {"PORT": "8080"},
+  "links": {"BANWORDS_JWKS_URL": {"service": "auth", "path": "/.well-known/jwks.json"}},
+  "routes": [
+    {
+      "hosts": ["danysik.ru", "www.danysik.ru"],
+      "path": "/api/banwords/openapi.json",
+      "auth": {"service": "auth", "path": "/verify?require=banwords:dictionaries:read"}
+    },
+    {
+      "hosts": ["danysik.ru", "www.danysik.ru"],
+      "prefix": "/api/banwords/",
+      "auth": {"service": "auth", "path": "/verify?require=banwords:dictionaries:read&credential=service-token"}
+    }
+  ],
+  "probes": [
+    {"url": "https://danysik.ru/api/banwords/catalog", "status": 404},
+    {"url": "https://danysik.ru/api/banwords/openapi.json", "status": 404}
+  ]
+}

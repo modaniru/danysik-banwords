@@ -14,11 +14,11 @@ import (
 	"syscall"
 	"time"
 
-	assets "github.com/modaniru/danilka-say-patch"
-	"github.com/modaniru/danilka-say-patch/internal/auth"
-	"github.com/modaniru/danilka-say-patch/internal/catalog"
-	"github.com/modaniru/danilka-say-patch/internal/config"
-	"github.com/modaniru/danilka-say-patch/internal/httpapi"
+	assets "github.com/modaniru/danysik-banwords"
+	"github.com/modaniru/danysik-banwords/internal/auth"
+	"github.com/modaniru/danysik-banwords/internal/catalog"
+	"github.com/modaniru/danysik-banwords/internal/config"
+	"github.com/modaniru/danysik-banwords/internal/httpapi"
 )
 
 // replaceable only within this package so tests can exercise the real entrypoint.

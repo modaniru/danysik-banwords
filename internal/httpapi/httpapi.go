@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/modaniru/danilka-say-patch/internal/auth"
-	"github.com/modaniru/danilka-say-patch/internal/catalog"
+	"github.com/modaniru/danysik-banwords/internal/auth"
+	"github.com/modaniru/danysik-banwords/internal/catalog"
 )
 
 const (

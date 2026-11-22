@@ -5,6 +5,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/banwords ./cmd/banwords
 
 FROM gcr.io/distroless/static-debian12:nonroot
+LABEL io.danysik.deployment-contract="coolify-v1"
 COPY --from=build /out/banwords /banwords
 USER nonroot:nonroot
 EXPOSE 8080
