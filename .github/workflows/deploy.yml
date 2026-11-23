@@ -1,5 +1,5 @@
 # Проверки и сборка образа в GHCR. Старый VPS удалён 21.11.2026.
-# Запуск приложения будет подключён отдельно через Coolify.
+# После сборки CI запускает точный digest через API Coolify и проверяет готовность.
 name: deploy
 
 on:
@@ -26,8 +26,11 @@ jobs:
       - run: go mod verify && go mod tidy && git diff --exit-code -- go.mod go.sum
       - run: make check
       - run: make test
+      - run: python3 -m unittest discover -s ci -p 'test_deploy.py' -v
 
   image:
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
     needs: check
     runs-on: ubuntu-latest
     permissions:
@@ -48,7 +51,8 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha
-      - uses: docker/build-push-action@v6
+      - id: build
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -56,3 +60,21 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    if: github.ref == 'refs/heads/master' && vars.COOLIFY_DEPLOY_ENABLED == 'true'
+    needs: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy published digest and verify readiness
+        run: python3 ci/deploy.py --manifest coolify.json
+        env:
+          COOLIFY_URL: ${{ vars.COOLIFY_URL }}
+          COOLIFY_APP_UUID: ${{ vars.COOLIFY_APP_UUID }}
+          COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
+          IMAGE_DIGEST: ${{ needs.image.outputs.digest }}
+          EXPECTED_IMAGE: ${{ env.IMAGE }}
