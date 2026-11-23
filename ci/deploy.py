@@ -221,16 +221,16 @@ def deploy(config, api=None, probe_opener=None, *, now=time.monotonic, sleep=tim
         application = call("GET", path)
         check_application(application, config, pinned=True)
         if application.get("status") == "running:healthy":
-            break
+            probes_ready = all(probe(probe_opener, url, expected, remaining()) for url, expected in config.probes)
+            if probes_ready:
+                # Coolify can briefly report the old container's health before
+                # the new container changes it to starting. Keep waiting rather
+                # than failing a release during that handover.
+                application = call("GET", path)
+                check_application(application, config, pinned=True)
+                if application.get("status") == "running:healthy":
+                    break
         sleep(min(5, remaining()))
-    for url, expected in config.probes:
-        while not probe(probe_opener, url, expected, remaining()):
-            sleep(min(5, remaining()))
-    # Recheck after probes so concurrent manual changes do not produce success.
-    application = call("GET", path)
-    check_application(application, config, pinned=True)
-    if application.get("status") != "running:healthy":
-        raise DeployError("После HTTPS probes приложение перестало быть healthy")
     emit("Выкатка завершена: конфигурация закреплена по digest; Coolify healthy и HTTPS probes проверены")
     return {"application_uuid": config.application, "deployment_uuid": identifier,
             "image": config.image, "digest": config.digest}

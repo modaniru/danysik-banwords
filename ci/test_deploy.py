@@ -276,6 +276,23 @@ class DeploymentTests(unittest.TestCase):
         with self.assertRaisesRegex(ci.DeployError, "версия"):
             self.execute(scenario)
 
+    def test_health_can_return_to_starting_while_new_container_settles(self):
+        scenario = Scenario()
+        seen = {"probe": False, "reads": 0}
+        def changing_health(method, path, body):
+            if path == "/finance/" and not seen["probe"]:
+                seen["probe"] = True
+                scenario.application["status"] = "running:starting"
+            elif path == "/api/v1/applications/app1" and seen["probe"]:
+                seen["reads"] += 1
+                if seen["reads"] >= 3:
+                    scenario.application["status"] = "running:healthy"
+            return None
+        scenario.override = changing_health
+        self.execute(scenario)
+        self.assertGreaterEqual(seen["reads"], 3)
+        self.assertEqual(sum(m == "POST" for m, _, _, _ in scenario.requests), 1)
+
     def test_oversized_or_invalid_json_responses_are_not_logged(self):
         for body in [(b"x" * (ci.MAX_RESPONSE + 1)), (TOKEN + "not-json").encode()]:
             scenario = Scenario()
